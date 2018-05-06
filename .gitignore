@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-# Created by .ignore support plugin (hsz.mobi)
-=======
->>>>>>> 109cc1da5c40d21b3812cc645f49563561976631
+
 # Logs
 logs
 *.log
@@ -60,10 +57,9 @@ typings/
 
 # dotenv environment variables file
 .env
-<<<<<<< HEAD
+
 .idea/
 package-lock.json
-package.json
-=======
+#package.json
 
->>>>>>> 109cc1da5c40d21b3812cc645f49563561976631
+
