@@ -61,7 +61,7 @@ typings/
 # dotenv environment variables file
 .env
 <<<<<<< HEAD
-#.idea/
+.idea/
 package-lock.json
 package.json
 =======
