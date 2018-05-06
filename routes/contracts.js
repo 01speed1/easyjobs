@@ -5,70 +5,67 @@ module.exports = (app, fireAdmin) => {
   // database conection
   let db = fireAdmin.firestore();
 
-  // Auth validator
-  let auth = fireAdmin.auth();
+  //router Contracts
+  let contractRouter =  express.Router();
 
-  //router Categories
-  let categoryRouter =  express.Router();
-
-  categoryRouter.route('/new')
+  contractRouter.route('/new')
       .post((sol, res)=>{
-        db.collection('Categories').add({...sol.body})
-            .then( category => db.collection('Categories').doc(category.id).get() )
-            .then( category => {res.json({categoryCreated:true, ...category.data()})
+        db.collection('Contracts').add({...sol.body})
+            .then( contract => db.collection('Contracts').doc(contract.id).get() )
+            .then( contract => {res.json({contractCreated:true, ...contract.data()})
             })
-            .catch(err => {res.json({categoryCreated:false, ...err })})
+            .catch(err => {res.json({contractCreated:false, ...err })})
 
       })
 
-  categoryRouter.route('/all')
+  contractRouter.route('/all')
       .post((sol, res)=>{
 
-        db.collection('Categories').get()
-            .then(categories =>{
+        db.collection('Contracts').get()
+            .then(contracts =>{
 
-              categories =  categories.docs.map( c => {
+              contracts =  contracts.docs.map( c => {
                 return { categoryId:c.id, ...c.data()}
               })
 
-              res.json(categories)
+              res.json(contracts)
 
             })
             .catch( err => {res.json( err )} )
       });
 
-  categoryRouter.route('/view/:sid')
+  contractRouter.route('/view/:sid')
       .post((sol, res)=>{
-        db.collection('Categories').doc(sol.params.sid).get()
-            .then((category)=>{
-              res.json( { categoryId:category.id, ...category.data()} )
+        db.collection('Contracts').doc(sol.params.sid).get()
+            .then((contracts)=>{
+              res.json( { categoryId:contracts.id, ...contracts.data()} )
             })
             .catch((err)=>{
               res.json(err)
             })
       });
 
-  categoryRouter.route('/update/:sid')
+  contractRouter.route('/update/:sid')
       .post((sol, res)=>{
-        db.collection('Categories').doc(sol.params.sid).update({...sol.body})
+        db.collection('Contracts').doc(sol.params.sid).update({...sol.body})
 
-            .then( ()=> db.collection('Categories').doc(sol.params.sid).get() )
+            .then( ()=> db.collection('Contracts').doc(sol.params.sid).get() )
 
-            .then((service)=>{
-              res.json({serviceUpdated:true, serviceId: service.id, ...service.data()})
+            .then((contract)=>{
+              res.json({contractUpdated:true, contractId: contract.id, ...contract.data()})
             })
             .catch((err)=>{
               res.json(err)
             })
       })
 
-  categoryRouter.route('/delete/:sid')
+  contractRouter.route('/delete/:sid')
       .post((sol, res)=>{
-        db.collection('Categories').doc(sol.params.sid).delete()
-            .then(()=> {res.json( {categoryDeleted:true })})
+        db.collection('Contracts').doc(sol.params.sid).delete()
+            .then(()=> {res.json( {contractDeleted:true })})
             .catch(err=> {res.json(err)})
       })
 
-  app.use('/category', categoryRouter)
+  app.use('/contract', contractRouter)
 
 }
