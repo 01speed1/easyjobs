@@ -1,28 +1,28 @@
 let express = require("express");
 
+//middlewares
+let verifyToken = require('../middlewares/verifyToken');  //verifyToken
+
 module.exports = (app, fireAdmin) => {
 
   // database conection
   let db = fireAdmin.firestore();
 
-  // Auth validator
-  let auth = fireAdmin.auth();
-
   //router Categories
   let categoryRouter =  express.Router();
 
   categoryRouter.route('/new')
-      .post((sol, res)=>{
+      .post(verifyToken, (sol, res)=>{
         db.collection('Categories').add({...sol.body})
             .then( category => db.collection('Categories').doc(category.id).get() )
-            .then( category => {res.json({categoryCreated:true, ...category.data()})
+            .then( category => {res.json({categoryCreated:true, id:category.id, ...category.data()})
             })
             .catch(err => {res.json({categoryCreated:false, ...err })})
 
       })
 
   categoryRouter.route('/all')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
 
         db.collection('Categories').get()
             .then(categories =>{
@@ -38,10 +38,15 @@ module.exports = (app, fireAdmin) => {
       });
 
   categoryRouter.route('/view/:sid')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Categories').doc(sol.params.sid).get()
             .then((category)=>{
-              res.json( { categoryId:category.id, ...category.data()} )
+              if (category.exists){
+                res.json( { categoryId:category.id, ...category.data()} )
+              }
+
+              else {res.json( {categoryExists:false} )}
+
             })
             .catch((err)=>{
               res.json(err)
@@ -49,7 +54,7 @@ module.exports = (app, fireAdmin) => {
       });
 
   categoryRouter.route('/update/:sid')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Categories').doc(sol.params.sid).update({...sol.body})
 
             .then( ()=> db.collection('Categories').doc(sol.params.sid).get() )
@@ -63,7 +68,7 @@ module.exports = (app, fireAdmin) => {
       })
 
   categoryRouter.route('/delete/:sid')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Categories').doc(sol.params.sid).delete()
             .then(()=> {res.json( {categoryDeleted:true })})
             .catch(err=> {res.json(err)})

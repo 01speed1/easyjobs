@@ -4,24 +4,39 @@
 let fireAdmin = require('firebase-admin');
 
 let auth = fireAdmin.auth();
+let db = fireAdmin.firestore();
 
 // verifyToken
 module.exports =  function verifyToken (sol, res, next)  {
 
   let clientHeaderToken = sol.headers.token;
+  let errors = {}
 
   if(clientHeaderToken !== undefined ){
 
     auth.verifyIdToken(clientHeaderToken)
         .then((decodedToken) => {
-          console.log('valid token (y)')
+
           sol.loggedUser = decodedToken.uid;
-          next();
 
-        }).catch(function(error) {
-             error['tokenExpired'] = true;
+          return db.collection('Users').doc(sol.loggedUser).get()
 
-            res.json({accessGranted:false, ...error})
+        })
+        .then(user => {
+          if(user.exists){
+            next();
+          } else {
+
+            // por crear un usuario solo con la libreria de firebase
+            errors['registredAndCreatedUser'] = false;
+            throw Error
+          }
+
+        })
+        .catch(function(error) {
+             errors['tokenExpired'] = true;
+             error['accessGranted'] = false;
+            res.json({ ...errors , ...error})
         });
 
   } else {

@@ -12,7 +12,7 @@ module.exports = (app, fireAdmin) => {
       .post((sol, res)=>{
         db.collection('Contracts').add({...sol.body})
             .then( contract => db.collection('Contracts').doc(contract.id).get() )
-            .then( contract => {res.json({contractCreated:true, ...contract.data()})
+            .then( contract => {res.json({contractCreated:true, contractId:contract.id, ...contract.data()})
             })
             .catch(err => {res.json({contractCreated:false, ...err })})
 
@@ -37,8 +37,13 @@ module.exports = (app, fireAdmin) => {
   contractRouter.route('/view/:sid')
       .post((sol, res)=>{
         db.collection('Contracts').doc(sol.params.sid).get()
-            .then((contracts)=>{
-              res.json( { categoryId:contracts.id, ...contracts.data()} )
+            .then((contract)=>{
+              if(contract.exists) {
+                res.json( { categoryId:contract.id, ...contract.data()} )
+              } else {
+                res.json( {contractExists: false} )
+              }
+
             })
             .catch((err)=>{
               res.json(err)
@@ -57,14 +62,14 @@ module.exports = (app, fireAdmin) => {
             .catch((err)=>{
               res.json(err)
             })
-      })
+      });
 
   contractRouter.route('/delete/:sid')
       .post((sol, res)=>{
         db.collection('Contracts').doc(sol.params.sid).delete()
             .then(()=> {res.json( {contractDeleted:true })})
             .catch(err=> {res.json(err)})
-      })
+      });
 
   app.use('/contract', contractRouter)
 

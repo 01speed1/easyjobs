@@ -1,18 +1,18 @@
 let express = require("express");
 
+//middlewares
+let verifyToken = require('../middlewares/verifyToken');  //verifyToken,
+
 module.exports = (app, fireAdmin) => {
 
   // database conection
   let db = fireAdmin.firestore();
 
-  // Auth validator
-  let auth = fireAdmin.auth();
-
   //router Servicies
   let serviceRouter =  express.Router();
 
     serviceRouter.route('/new')
-        .post((sol, res)=>{
+        .post(verifyToken, (sol, res)=>{
           db.collection('Services')
               .add({...sol.body})
               .then(service => db.collection('Services').doc(service.id).get())
@@ -24,7 +24,12 @@ module.exports = (app, fireAdmin) => {
         .post((sol, res)=>{
           db.collection('Services').doc(sol.params.sid).get()
               .then((service)=>{
-                res.json(service.data())
+                if (service.exists) {
+                  res.json( {serviceId:service.id, ...service.data()}  )
+                } else {
+                  res.json( {serviceExists: false} )
+                }
+
               })
               .catch((err)=>{
                 res.json(err)
@@ -48,11 +53,10 @@ module.exports = (app, fireAdmin) => {
     serviceRouter.route('/delete/:sid')
         .post((sol, res)=>{
           db.collection('Services').doc(sol.params.sid).delete()
+              .then(()=> {res.json( {serviceDeleted: true  } )})
               .catch(err=> {res.json(err)})
         })
 
   app.use('/service', serviceRouter)
-
-
 
 }

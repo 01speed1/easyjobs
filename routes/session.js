@@ -90,7 +90,7 @@ module.exports = (app, fireAdmin) => {
                 // borra la constraseña a la hora de enviar al  cliente
                 delete data.userInfo.password
 
-                return auth.createCustomToken(user.id)
+                return true
 
 
               } else {
@@ -100,7 +100,7 @@ module.exports = (app, fireAdmin) => {
 
             })
             .then( token => {
-              data.token = token;
+
               res.json( data )
             })
             .catch((err)=>{

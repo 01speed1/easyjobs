@@ -1,7 +1,7 @@
 let express = require("express");
 
 //middlewares
-let verifyToken = require('../middlewares/verifyToken');
+let verifyToken = require('../middlewares/verifyToken');  //verifyToken
 
 module.exports = (app, fireAdmin) => {
 
@@ -19,41 +19,62 @@ module.exports = (app, fireAdmin) => {
           res.redirect('/profile.html')
         })
 
+  //logged profile
+  profileRouter.route('/')
+      .post(verifyToken,(sol, res)=>{
+        db.doc('Users/'+sol.loggedUser).get()
+            .then( user =>{
+              if  (user.exists) {
+                let userInfo = {uid:user.id, ...user.data()}
+                delete userInfo.password;
+                res.json(userInfo)
+              } else { res.send(" si ve esto mrk ust hizo un mierdero ")}
+
+            })
+      });
     //profile user info
     profileRouter.route('/:uid')
         .post(verifyToken,(sol, res)=>{
-          db.collection('Users').doc(sol.params.uid).get()
-              .then( user =>{
+          if (sol.params.uid !== "me"){
+            db.collection('Users').doc(sol.params.uid).get()
+                .then( user =>{
                   let userInfo = { ...user.data()}
                   delete userInfo.password;
 
                   res.json(userInfo)
-              })
+                })
+          }
+
         });
     app.use('/profile',profileRouter);
 
   //router user
     let userRouter = express.Router();
       userRouter.route('/view/:uid')
-          .post((sol, res)=>{
+          .post(verifyToken,(sol, res)=>{
             db.collection('Users').doc(sol.params.uid).get()
                 .then( user =>{
-                  res.json(user.data())
+                  let userInfo = {...user.data()}
+                  delete userInfo.password;
+                  res.json({uid:user.id, ...userInfo})
                 })
           });
       userRouter.route('/update/:uid')
-          .post((sol, res)=>{
+          .post(verifyToken,(sol, res)=>{
 
-             db.collection('Users').doc(sol.params.uid).update({...data,...sol.body})
-                .then((user)=>{
-                  res.json({ userUpdated:true, ...user.data()})
-                })
-                .catch((err)=>{
-                  res.json(err)
-                })
+             db.collection('Users').doc(sol.params.uid).update({...sol.body})
+                 .then(()=> db.collection('Users').doc(sol.params.uid).get())
+                 .then((user)=>{
+                   let userInfo = {...user.data()}
+                   delete userInfo.password;
+                    res.json({ userUpdated:true, ...userInfo})
+                  })
+                  .catch((err)=>{
+                    res.json(err)
+                  })
           });
       userRouter.route('/delete/:uid')
-          .post((sol, res)=>{
+          .post(verifyToken,(sol, res)=>{
 
             let locals = {};
 
@@ -70,7 +91,8 @@ module.exports = (app, fireAdmin) => {
                   res.json(locals);
                 })
                 .catch(function(error) {
-                  res.json({userDeleted: true})
+                  locals.userDeleted = true;
+                  res.json({...locals, ...error})
                 });
           });
     app.use('/user', userRouter)
