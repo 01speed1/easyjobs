@@ -8,24 +8,21 @@ let auth = fireAdmin.auth();
 // verifyToken
 module.exports =  function verifyToken (sol, res, next)  {
 
-  let clientHeaderToken = sol.headers.authtoken;
+  let clientHeaderToken = sol.headers.token;
 
   if(clientHeaderToken !== undefined ){
 
     auth.verifyIdToken(clientHeaderToken)
         .then((decodedToken) => {
-
-
-
-          res.json(decodedToken.uid)
-
+          console.log('valid token (y)')
+          sol.loggedUser = decodedToken.uid;
+          next();
 
         }).catch(function(error) {
+             error['tokenExpired'] = true;
 
-      res.json(error.tokenExpired = true)
-    });
-
-    next()
+            res.json({accessGranted:false, ...error})
+        });
 
   } else {
     res.json({accessGranted: false})

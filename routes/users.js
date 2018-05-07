@@ -1,5 +1,8 @@
 let express = require("express");
 
+//middlewares
+let verifyToken = require('../middlewares/verifyToken');
+
 module.exports = (app, fireAdmin) => {
 
   // database conection
@@ -18,10 +21,13 @@ module.exports = (app, fireAdmin) => {
 
     //profile user info
     profileRouter.route('/:uid')
-        .get((sol, res)=>{
+        .post(verifyToken,(sol, res)=>{
           db.collection('Users').doc(sol.params.uid).get()
               .then( user =>{
-                  res.json(user.data())
+                  let userInfo = { ...user.data()}
+                  delete userInfo.password;
+
+                  res.json(userInfo)
               })
         });
     app.use('/profile',profileRouter);

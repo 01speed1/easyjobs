@@ -38,6 +38,9 @@
           </div>
         </form>
       </div>
+      <div class="row atoken">
+        <h3>  me ves </h3>
+      </div>
     </div>
 
     <!--jquery-->
@@ -76,21 +79,25 @@
 
       $().ready(()=>{
 
+        let rowToken = $('div.atoken')
+        rowToken.toggle(false)
+
         loginUser = () =>{
           firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
-              .catch(err=>{
-                alert(err.message);
-              })
-          firebase.auth().currentUser.getIdToken(true)
+              .then( ()=> firebase.auth().currentUser.getIdToken(true) )
               .then(idToken => {
 
+                rowToken.toggle(true)
+                rowToken.html('')
+                rowToken.html(idToken)
                 console.log(idToken)
 
-              }).catch(function(error) {
+              })
+              .catch(err=>{
+                alert(err);
+              })
 
-            console.log(error)
 
-          });
 
         }
       })

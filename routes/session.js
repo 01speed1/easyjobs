@@ -1,7 +1,6 @@
 let express = require("express");
 
-//middlewares
-let verifyToken = require('../middlewares/verifyToken');
+
 
 
 module.exports = (app, fireAdmin) => {
@@ -17,8 +16,41 @@ module.exports = (app, fireAdmin) => {
       .get((sol, res)=>{
         res.redirect('/log.html')
       })
-      .post(verifyToken, (sol, res)=>{
+      .post((sol, res)=>{
 
+        let data = {}
+
+        auth.getUserByEmail(sol.body.email)
+            .then( user =>  db.collection('Users').doc(user.uid).get() )
+            .then( user => {
+                if(user.exists){
+                  let userInfo = {uid:user.id, ...user.data()};
+
+                  data.userInfo = userInfo;
+
+                  if (userInfo.password === sol.body.password) {
+
+                    delete data.userInfo.password
+
+                    return auth.createCustomToken(user.id)
+
+                  } else {
+                   res.json({
+                     accessGranted:false,
+                     message:"Wrong password"
+                   });
+                  }
+                }
+            } )
+            .then( token => {
+                if (token) {
+                  data.token = token
+                  res.json(data)
+                }
+
+
+            } )
+            .catch( err => res.json(err))
 
 
       });
@@ -26,55 +58,60 @@ module.exports = (app, fireAdmin) => {
 
 
   // router register
-  let registerRouter = express.Router();
-  registerRouter.route('/')
+  let signUpRouter = express.Router();
+  signUpRouter.route('/')
       .get((sol, res)=>{
         res.redirect('/register.html')
       })
+      // registra, guarda info en la base de datos y envia token
       .post((sol, res)=>{
 
-        let infoNewUser = {
-          uid: "5erxBPK7Mkfjlv8r47af8o8ufQ52",
-          email: "dfdsf@dfsd.com",
-          phone: "111-555-1234",
-          country: "Colombia",
-          region: "Cundinamarca",
-          city: "Puerto Salgar",
-          avatar_url: "https://media.creativemornings.com/uploads/user/avatar/116475/round_headshot.png"
-        }
+        let data = {}
 
-        db.collection('Users').doc(infoNewUser.uid).set(infoNewUser)
-            .then(()=>{
-              res.json({userCreated:true})
+        auth.createUser({...sol.body})
+            .then(newUser =>{
+              // delete sol.body.password
+              data.uid = newUser.uid
+              return db.collection('Users').doc(newUser.uid).set({...sol.body}, {merge:true});
+
+            })
+            .then( () =>  db.collection('Users').doc(data.uid).get() )
+            .then(user => {
+              if (user.exists) {
+
+                // ya no sera nesesario este id
+                delete data.uid
+
+                data = {
+                  userRegistred:true,
+                  userCreated: true,
+                  userInfo: {uid:user.id, ...user.data()}
+                }
+                // borra la constraseña a la hora de enviar al  cliente
+                delete data.userInfo.password
+
+                return auth.createCustomToken(user.id)
+
+
+              } else {
+                res.json({userExists:false})
+              }
+
+
+            })
+            .then( token => {
+              data.token = token;
+              res.json( data )
             })
             .catch((err)=>{
               res.json(err)
             })
 
 
-
       })
-  app.use('/register',registerRouter);
+  app.use('/signup',signUpRouter);
 
 
-
-  app.get("/", (sol, res)=>{
-
-    db.collection('People').get()
-        .then((people)=>{
-
-          let peopleList = people.docs.map(person =>{
-            const id = person.id;
-            return {id, ...person.data()};
-          });
-
-          res.json(peopleList);
-        })
-        .catch((err)=>{
-          console.log('Error al consultar personas: '+ err);
-        });
-
-  });
 
 };
 
