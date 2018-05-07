@@ -44,7 +44,7 @@ module.exports = (app, fireAdmin) => {
             } )
             .then( token => {
                 if (token) {
-                  data.token = token
+                  // data.token = token
                   res.json(data)
                 }
 
