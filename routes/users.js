@@ -48,7 +48,7 @@ module.exports = (app, fireAdmin) => {
         });
     app.use('/profile',profileRouter);
 
-  //router user
+  //router user test
     let userRouter = express.Router();
       userRouter.route('/view/:uid')
           .post(verifyToken,(sol, res)=>{
