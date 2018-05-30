@@ -60,8 +60,8 @@
       <file leaf-file-name="session.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/routes/session.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="298">
-              <caret line="99" column="46" lean-forward="false" selection-start-line="99" selection-start-column="46" selection-end-line="99" selection-end-column="46" />
+            <state relative-caret-position="258">
+              <caret line="97" column="45" lean-forward="false" selection-start-line="97" selection-start-column="45" selection-end-line="97" selection-end-column="45" />
               <folding>
                 <element signature="e#292#335#0" expanded="false" />
                 <element signature="e#361#1294#0" expanded="false" />
@@ -234,7 +234,7 @@
       <workItem from="1525649162852" duration="25322000" />
       <workItem from="1526427295907" duration="591000" />
       <workItem from="1526592849306" duration="131000" />
-      <workItem from="1527655277241" duration="3804000" />
+      <workItem from="1527655277241" duration="4634000" />
     </task>
     <task id="LOCAL-00001" summary="first init test">
       <created>1525308693743</created>
@@ -303,7 +303,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="95436000" />
+    <option name="totallyTimeSpent" value="96266000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -677,8 +677,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/session.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="99" column="46" lean-forward="false" selection-start-line="99" selection-start-column="46" selection-end-line="99" selection-end-column="46" />
+        <state relative-caret-position="258">
+          <caret line="97" column="45" lean-forward="false" selection-start-line="97" selection-start-column="45" selection-end-line="97" selection-end-column="45" />
           <folding>
             <element signature="e#292#335#0" expanded="false" />
             <element signature="e#361#1294#0" expanded="false" />

@@ -93,11 +93,12 @@ module.exports = (app, fireAdmin) => {
                   userCreated: true,
                   userInfo: {uid:user.id, ...user.data()}
                 }
+
                 // borra la constraseña a la hora de enviar al  cliente
                 delete data.userInfo.password
 
                 // return true
-                res.status(201).send("se creo.")
+                res.status(201).json(data)
 
               } else {
                 res.status(500).json({userExists:false, message: "No se registro usuario con ese id"})
