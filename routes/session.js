@@ -84,7 +84,6 @@ module.exports = (app, fireAdmin) => {
 
               if (user.exists) {
 
-                console.log("cargar datos de yser ya creado", user.data())
                 // ya no sera nesesario este id
                 //delete data;
 
