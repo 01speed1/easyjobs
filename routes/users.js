@@ -29,7 +29,6 @@ module.exports = (app, fireAdmin) => {
                 delete userInfo.password;
                 res.json(userInfo)
               } else { res.send(" si ve esto mrk ust hizo un mierdero ")}
-
             })
       });
     //profile user info

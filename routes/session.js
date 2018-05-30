@@ -66,10 +66,14 @@ module.exports = (app, fireAdmin) => {
       // registra, guarda info en la base de datos y envia token
       .post((sol, res)=>{
 
+        console.log('sol body antes credenciales: ', sol.body)
+
         let data = {}
 
         auth.createUser({...sol.body})
             .then(newUser =>{
+              console.log('sol body despues credenciales: ', sol.body)
+
               // delete sol.body.password
               data.uid = newUser.uid
               return db.collection('Users').doc(newUser.uid).set({...sol.body}, {merge:true});
