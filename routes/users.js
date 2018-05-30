@@ -12,37 +12,35 @@ module.exports = (app, fireAdmin) => {
 
   //router profile
     let profileRouter = express.Router();
-
-    // user router
-    profileRouter.route('/')
-        .get((sol, res)=>{
-          res.redirect('/profile.html')
-        })
-
+   
   //logged profile
   profileRouter.route('/')
       .post(verifyToken,(sol, res)=>{
-        db.doc('Users/'+sol.loggedUser).get()
+        db.doc('Users/'+sol.loggedUser.email).get()
             .then( user =>{
               if  (user.exists) {
-                let userInfo = {uid:user.id, ...user.data()}
+                let userInfo = { ...user.data()}
                 delete userInfo.password;
                 res.json(userInfo)
-              } else { res.send(" si ve esto mrk ust hizo un mierdero ")}
+              } else { res.status(500).json(" si ve esto mrk ust hizo un mierdero ")}
             })
       });
     //profile user info
     profileRouter.route('/:uid')
         .post(verifyToken,(sol, res)=>{
-          if (sol.params.uid !== "me"){
+          
             db.collection('Users').doc(sol.params.uid).get()
                 .then( user =>{
+
+                  if (!user.exists) res.json({server_error:"Usuario no encontrado."})
+                    
+                  
                   let userInfo = { ...user.data()}
                   delete userInfo.password;
 
                   res.json(userInfo)
                 })
-          }
+          
 
         });
     app.use('/profile',profileRouter);
@@ -55,7 +53,7 @@ module.exports = (app, fireAdmin) => {
                 .then( user =>{
                   let userInfo = {...user.data()}
                   delete userInfo.password;
-                  res.json({uid:user.id, ...userInfo})
+                  res.json({ ...userInfo})
                 })
           });
       userRouter.route('/update/:uid')
@@ -94,6 +92,7 @@ module.exports = (app, fireAdmin) => {
                   res.json({...locals, ...error})
                 });
           });
+
     app.use('/user', userRouter)
 
 

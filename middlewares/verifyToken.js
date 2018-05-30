@@ -2,45 +2,27 @@
 
 // Firebase Admin Configuration
 let fireAdmin = require('firebase-admin');
+let secret = require('../config/data').secret
+let jwt = require('jsonwebtoken');
 
-let auth = fireAdmin.auth();
 let db = fireAdmin.firestore();
 
 // verifyToken
 module.exports =  function verifyToken (sol, res, next)  {
 
   let clientHeaderToken = sol.headers.token;
-  let errors = {}
+
 
   if(clientHeaderToken !== undefined ){
 
-    auth.verifyIdToken(clientHeaderToken)
-        .then((decodedToken) => {
+    jwt.verify(clientHeaderToken, secret, (err, decoded) => {
 
-          sol.loggedUser = decodedToken.uid;
+      if(err) res.status(400).json({server_error:"Token invalido"})
+            
+      sol.loggedUser = decoded
+      next()     
+      
+      });
+    }
 
-          return db.collection('Users').doc(sol.loggedUser).get()
-
-        })
-        .then(user => {
-          if(user.exists){
-            next();
-          } else {
-
-            // por crear un usuario solo con la libreria de firebase
-            errors['registredAndCreatedUser'] = false;
-            throw Error
-          }
-
-        })
-        .catch(function(error) {
-             errors['tokenExpired'] = true;
-             error['accessGranted'] = false;
-            res.json({ ...errors , ...error})
-        });
-
-  } else {
-    res.json({accessGranted: false})
   }
-
-}

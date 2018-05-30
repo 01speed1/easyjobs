@@ -11,3 +11,5 @@ module.exports = config = {
   algorithm: 'aes-256-ctr',
   cryptoPass: "your_secret_is_my_secret"
 }
+
+exports.SECRET = config.secret
