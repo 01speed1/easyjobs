@@ -66,13 +66,13 @@ module.exports = (app, fireAdmin) => {
       // registra, guarda info en la base de datos y envia token
       .post((sol, res)=>{
 
-        console.log('sol body antes credenciales: ', sol.body)
+
 
         let data = {}
 
         auth.createUser({...sol.body})
             .then(newUser =>{
-              console.log('sol body despues credenciales: ', sol.body)
+
 
               // delete sol.body.password
               data.uid = newUser.uid
@@ -81,10 +81,12 @@ module.exports = (app, fireAdmin) => {
             })
             .then( () =>  db.collection('Users').doc(data.uid).get() )
             .then(user => {
+
               if (user.exists) {
 
+                console.log("cargar datos de yser ya creado", user.data())
                 // ya no sera nesesario este id
-                delete data.uid
+                //delete data;
 
                 data = {
                   userRegistred:true,
@@ -94,18 +96,13 @@ module.exports = (app, fireAdmin) => {
                 // borra la constraseña a la hora de enviar al  cliente
                 delete data.userInfo.password
 
-                return true
-
+                // return true
+                res.status(201).json( data )
 
               } else {
-                res.json({userExists:false})
+                res.status(500).json({userExists:false, message: "No se registro usuario con ese id"})
               }
 
-
-            })
-            .then( token => {
-
-              res.json( data )
             })
             .catch((err)=>{
               res.json(err)
