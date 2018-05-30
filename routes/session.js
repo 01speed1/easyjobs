@@ -97,7 +97,7 @@ module.exports = (app, fireAdmin) => {
                 delete data.userInfo.password
 
                 // return true
-                res.status(201).json( data )
+                res.status(201).send("se creo.")
 
               } else {
                 res.status(500).json({userExists:false, message: "No se registro usuario con ese id"})
