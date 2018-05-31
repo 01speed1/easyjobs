@@ -73,24 +73,16 @@ module.exports = (app, fireAdmin) => {
       userRouter.route('/delete/:uid')
           .post(verifyToken,(sol, res)=>{
 
-            let locals = {};
-
-            auth.deleteUser(sol.params.uid)
-                .then(() => {
-                  console.log("Borrando credenciales...");
-                  locals.userCredentialsDeleted =  true;
-
-                  return db.collection('Users').doc(sol.params.uid).delete();
-                })
-                .then(() => {
-                  console.log("Borrando perfil de usuario...");
-                  locals.userInfoDeleted = true;
-                  res.json(locals);
-                })
-                .catch(function(error) {
-                  locals.userDeleted = true;
-                  res.json({...locals, ...error})
-                });
+            db.collection('Users')
+            .doc(sol.params.uid)
+            .delete()
+            .then( ()=>{
+              res.status(201).json({message:"Usuario "+sol.params.id+" borrado"})
+            })
+            .catch((error) {
+              res.status().json({server_error:"Ocurrio un error al borrar usuario", error })
+            });
+                
           });
 
     app.use('/user', userRouter)
