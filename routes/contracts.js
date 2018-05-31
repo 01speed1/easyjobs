@@ -39,7 +39,7 @@ module.exports = (app, fireAdmin) => {
         db.collection('Contracts').doc(sol.params.sid).get()
             .then((contract)=>{
               if(contract.exists) {
-                res.json( { categoryId:contract.id, ...contract.data()} )
+                res.json( { contractId:contract.id, ...contract.data()} )
               } else {
                 res.json( {contractExists: false} )
               }
