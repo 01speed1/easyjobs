@@ -76,10 +76,10 @@ module.exports = (app, fireAdmin) => {
             db.collection('Users')
             .doc(sol.params.uid)
             .delete()
-            .then( ()=>{
+            .then(()=>{
               res.status(201).json({message:"Usuario "+sol.params.id+" borrado"})
             })
-            .catch((error) {
+            .catch((error) => {
               res.status().json({server_error:"Ocurrio un error al borrar usuario", error })
             });
                 
