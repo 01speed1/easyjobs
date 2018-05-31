@@ -25,10 +25,10 @@ module.exports = (app, fireAdmin) => {
             .then(contracts =>{
 
               contracts =  contracts.docs.map( c => {
-                return { categoryId:c.id, ...c.data()}
+                return { contratId:c.id, ...c.data()}
               })
 
-              res.json(contracts)
+              res.json({contracts})
 
             })
             .catch( err => {res.json( err )} )

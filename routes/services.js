@@ -20,7 +20,7 @@ module.exports = (app, fireAdmin) => {
               .catch(err => {res.json(err)})
         });
 
-        serviceRouter.route('/view/')
+        serviceRouter.route('/view/all')
         .post((sol, res)=>{
           db.collection('Services').get()
           .then( servives => {
