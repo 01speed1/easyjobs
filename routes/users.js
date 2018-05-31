@@ -16,6 +16,7 @@ module.exports = (app, fireAdmin) => {
   //logged profile
   profileRouter.route('/')
       .post(verifyToken,(sol, res)=>{
+        console.log(sol.loggedUser);
         db.doc('Users/'+sol.loggedUser.email).get()
             .then( user =>{
               if  (user.exists) {
@@ -45,7 +46,9 @@ module.exports = (app, fireAdmin) => {
         });
     app.use('/profile',profileRouter);
 
-  //router user test
+  
+  
+    //router user test
     let userRouter = express.Router();
       userRouter.route('/view/:uid')
           .post(verifyToken,(sol, res)=>{
@@ -77,7 +80,7 @@ module.exports = (app, fireAdmin) => {
             .doc(sol.params.uid)
             .delete()
             .then(()=>{
-              res.status(201).json({message:"Usuario "+sol.params.id+" borrado"})
+              res.status(201).json({message:"Usuario "+sol.params.uid+" borrado"})
             })
             .catch((error) => {
               res.status().json({server_error:"Ocurrio un error al borrar usuario", error })
