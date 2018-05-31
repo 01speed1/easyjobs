@@ -19,7 +19,7 @@ module.exports =  function verifyToken (sol, res, next)  {
 
       if(err) res.status(400).json({server_error:"Token invalido"})
             
-      sol.loggedUser = decoded
+      sol.loggedUser = decoded.user
         
       next()     
       
