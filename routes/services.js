@@ -20,7 +20,18 @@ module.exports = (app, fireAdmin) => {
               .catch(err => {res.json(err)})
         });
 
-    serviceRouter.route('/view/:sid')
+        serviceRouter.route('/view/')
+        .post((sol, res)=>{
+          db.collection('Services').get()
+          .then( servives => {
+            let array_services = []
+            servives.forEach(service => array_services.push({serviceId:service.id, ...service.data()}))
+            res.status(201).json({servives:array_services})
+          })
+          .catch( err => res.status(500).json({server_error: "fallo la consulta de los servicios", err}) )
+        })
+
+        serviceRouter.route('/view/:sid')
         .post((sol, res)=>{
           db.collection('Services').doc(sol.params.sid).get()
               .then((service)=>{
