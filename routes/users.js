@@ -62,6 +62,8 @@ module.exports = (app, fireAdmin) => {
       userRouter.route('/update/:uid')
           .post(verifyToken,(sol, res)=>{
 
+            if(sol.body.password) sol.body.password = bcrypt.hashSync(sol.body.password, 10);
+
              db.collection('Users').doc(sol.params.uid).update({...sol.body})
                  .then(()=> db.collection('Users').doc(sol.params.uid).get())
                  .then((user)=>{
