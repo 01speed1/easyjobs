@@ -31,7 +31,7 @@ module.exports = (app, fireAdmin) => {
                 return { categoryId:c.id, ...c.data()}
               })
 
-              res.json(categories)
+              res.json({Categories:categories})
 
             })
             .catch( err => {res.json( err )} )
