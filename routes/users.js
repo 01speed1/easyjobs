@@ -1,4 +1,5 @@
 let express = require("express");
+let bcrypt = require('bcryptjs');
 
 //middlewares
 let verifyToken = require('../middlewares/verifyToken');  //verifyToken
