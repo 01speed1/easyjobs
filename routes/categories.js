@@ -20,7 +20,6 @@ module.exports = (app, fireAdmin) => {
             .catch(err => {res.json({categoryCreated:false, ...err })})
 
       })
-
   categoryRouter.route('/all')
       .post(verifyToken,(sol, res)=>{
 
@@ -37,7 +36,6 @@ module.exports = (app, fireAdmin) => {
             })
             .catch( err => {res.json( err )} )
       });
-
   categoryRouter.route('/view/:sid')
       .post(verifyToken,(sol, res)=>{
         db.collection('Categories').doc(sol.params.sid).get()
@@ -53,7 +51,19 @@ module.exports = (app, fireAdmin) => {
               res.json(err)
             })
       });
-
+  
+  categoryRouter.route('/view/:sid/services')
+    .post(verifyToken, (sol, res) => {
+      db.collection('Services')
+      .where('categoryId', '==', sol.params.sid)
+      .get()
+      .then( services => {
+        services =  services.docs.map(service => {
+          return {serviceId:service.id, ...service.data()}
+        })
+        res.json({services})
+      })
+    })
   categoryRouter.route('/update/:sid')
       .post(verifyToken,(sol, res)=>{
         db.collection('Categories').doc(sol.params.sid).update({...sol.body})
@@ -67,7 +77,6 @@ module.exports = (app, fireAdmin) => {
               res.json(err)
             })
       })
-
   categoryRouter.route('/delete/:sid')
       .post(verifyToken,(sol, res)=>{
         db.collection('Categories').doc(sol.params.sid).delete()

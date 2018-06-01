@@ -20,7 +20,7 @@ module.exports = (app, fireAdmin) => {
               .catch(err => {res.json(err)})
         });
 
-        serviceRouter.route('/view/all')
+    serviceRouter.route('/view/all')
         .post((sol, res)=>{
           db.collection('Services').get()
           .then( servives => {
@@ -31,7 +31,7 @@ module.exports = (app, fireAdmin) => {
           .catch( err => res.status(500).json({server_error: "fallo la consulta de los servicios", err}) )
         })
 
-        serviceRouter.route('/view/:sid')
+    serviceRouter.route('/view/:sid')
         .post((sol, res)=>{
           db.collection('Services').doc(sol.params.sid).get()
               .then((service)=>{
