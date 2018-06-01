@@ -25,12 +25,13 @@ module.exports = (app, fireAdmin) => {
       .post(verifyToken,(sol, res)=>{
 
         db.collection('Categories').get()
-            .then(categories =>{
+            .then(categories =>{ 
 
               categories =  categories.docs.map( c => {
                 return { categoryId:c.id, ...c.data()}
               })
 
+              console.log("update");
               res.json({Categories:categories})
 
             })
