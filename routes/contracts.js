@@ -1,4 +1,5 @@
 let express = require("express");
+let verifyToken = require('../middlewares/verifyToken');  //verifyToken,
 
 module.exports = (app, fireAdmin) => {
 
@@ -9,7 +10,7 @@ module.exports = (app, fireAdmin) => {
   let contractRouter =  express.Router();
 
   contractRouter.route('/new')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Contracts').add({...sol.body})
             .then( contract => db.collection('Contracts').doc(contract.id).get() )
             .then( contract => {res.json({contractCreated:true, contractId:contract.id, ...contract.data()})
@@ -19,7 +20,7 @@ module.exports = (app, fireAdmin) => {
       })
 
   contractRouter.route('/all')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
 
         db.collection('Contracts').get()
             .then(contracts =>{
@@ -35,7 +36,7 @@ module.exports = (app, fireAdmin) => {
       });
 
   contractRouter.route('/view/:sid')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Contracts').doc(sol.params.sid).get()
             .then((contract)=>{
               if(contract.exists) {
@@ -51,7 +52,7 @@ module.exports = (app, fireAdmin) => {
       });
 
   contractRouter.route('/update/:sid')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Contracts').doc(sol.params.sid).update({...sol.body})
 
             .then( ()=> db.collection('Contracts').doc(sol.params.sid).get() )
@@ -65,12 +66,47 @@ module.exports = (app, fireAdmin) => {
       });
 
   contractRouter.route('/delete/:sid')
-      .post((sol, res)=>{
+      .post(verifyToken,(sol, res)=>{
         db.collection('Contracts').doc(sol.params.sid).delete()
             .then(()=> {res.json( {contractDeleted:true })})
             .catch(err=> {res.json(err)})
-      });
-
+  });
+  contractRouter.route('/applicant')
+    .post(verifyToken, (sol, res)=>{
+      db.collection('Contracts')
+        .where('applicantUser', '==', sol.loggedUser.email)
+        .get()
+        .then( constracts => {
+          let Contracts = constracts.docs.map( constract => {
+            return constract = {constractId: constract.id, ...constract.data() }
+          })
+          res.status(201).json({Contracts:Contracts})
+        }).catch(err => {
+          res-status(400).json({
+            firebase_error:err, 
+            server_error:"Error al consultar contratos de usuario logeado - applicant"
+          })
+        })
+    })
+  
+  
+  contractRouter.route('/provider')
+    .post(verifyToken, (sol, res)=>{
+      db.collection('Contracts')
+        .where('providerUser', '==', sol.loggedUser.email)
+        .get()
+        .then( constracts => {
+          let Contracts = constracts.docs.map( constract => {
+            return constract = {constractId: constract.id, ...constract.data() }
+          })
+          res.status(201).json({Contracts:Contracts})
+        }).catch(err => {
+          res-status(400).json({
+            firebase_error:err, 
+            server_error:"Error al consultar contratos de usuario logeado - provider"
+          })
+        })
+    })
   app.use('/contract', contractRouter)
 
 }
