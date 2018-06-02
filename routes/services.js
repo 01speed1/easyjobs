@@ -21,7 +21,7 @@ module.exports = (app, fireAdmin) => {
         });
 
     serviceRouter.route('/view/all')
-        .post((sol, res)=>{
+        .post(verifyToken,(sol, res)=>{
           db.collection('Services').get()
           .then( servives => {
             let array_services = []
@@ -32,7 +32,7 @@ module.exports = (app, fireAdmin) => {
         })
 
     serviceRouter.route('/view/:sid')
-        .post((sol, res)=>{
+        .post(verifyToken,(sol, res)=>{
           db.collection('Services').doc(sol.params.sid).get()
               .then((service)=>{
                 if (service.exists) {
@@ -48,7 +48,7 @@ module.exports = (app, fireAdmin) => {
         });
 
     serviceRouter.route('/update/:sid')
-        .post((sol, res)=>{
+        .post(verifyToken,(sol, res)=>{
           db.collection('Services').doc(sol.params.sid).update({...sol.body})
 
               .then(()=> db.collection('Services').doc(sol.params.sid).get())
@@ -62,12 +62,33 @@ module.exports = (app, fireAdmin) => {
         })
 
     serviceRouter.route('/delete/:sid')
-        .post((sol, res)=>{
+        .post(verifyToken,(sol, res)=>{
           db.collection('Services').doc(sol.params.sid).delete()
               .then(()=> {res.json( {serviceDeleted: true  } )})
               .catch(err=> {res.json(err)})
         })
 
-  app.use('/service', serviceRouter)
+    serviceRouter.route('/search')
+      .post( (sol, res)=> {
+        db.collection('Services')
+        .get()
+        .then( services => {
+          
+          
+          let busqueda = sol.body.busqueda
+          let results = []
+          services.forEach( service => {
+            service = { serviceId: service.id, ...service.data() }
+            let regex = new RegExp(busqueda, 'i');
+            if (regex.test(service.Descripcion)) {
+              results.push( service )
+            } 
+          })
+          res.status(200).json({Results:results})  
+          
+        })
+        .catch(() => res.status(400).json({error:"Error al buscar en servicios"}))
+      })
+    app.use('/service', serviceRouter)
 
 }

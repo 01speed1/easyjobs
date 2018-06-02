@@ -12,6 +12,7 @@ module.exports =  function verifyToken (sol, res, next)  {
 
   let clientHeaderToken = sol.headers.token;
 
+  
 
   if(clientHeaderToken !== undefined ){
 
@@ -24,6 +25,6 @@ module.exports =  function verifyToken (sol, res, next)  {
       next()     
       
       });
-    }
+    } else { res.status(400).json({server_error:"Token requerido"}) }
 
   }
