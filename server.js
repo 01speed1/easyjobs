@@ -6,7 +6,7 @@ let config = require('./config/data');
 
 // dowload apk
 app.get('/download', (sol, res) => {
-    res.download( __dirname +'/downloads/ej.apk', 'easy-jobs-1.0-.apk', (err)=>{
+    res.download( __dirname +'/downloads/app-debug.apk', 'easy-jobs-1.0-.apk', (err)=>{
         if (err) res.redirect('/')
         else res.json({ok:true})
     })
