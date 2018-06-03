@@ -107,6 +107,6 @@ module.exports = (app, fireAdmin) => {
           })
         })
     })
-  app.use('/contract', contractRouter)
-
-}
+    app.use('/contract', contractRouter)
+    
+  }

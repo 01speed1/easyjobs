@@ -21,24 +21,46 @@ module.exports = (app, fireAdmin) => {
         });
 
     serviceRouter.route('/view/all')
-        .post(verifyToken,(sol, res)=>{
-          db.collection('Services').get()
-          .then( servives => {
-            let array_services = []
-            servives.forEach(service => array_services.push({serviceId:service.id, ...service.data()}))
-            res.status(201).json({servives:array_services})
-          })
-          .catch( err => res.status(500).json({server_error: "fallo la consulta de los servicios", err}) )
+        .post(verifyToken, (sol, res)=>{
+          let users = {};
+          db.collection('Users').get()
+          .then( u => {
+            u.forEach( user => {
+              users[user.id] = user.data();
+            })
+            
+            db.collection('Services').get()
+            .then( services => {
+              
+              let serv = services.docs.map( s => {
+                let service = s.data()
+                service.UserId = users[s.data().UserId]
+                return service
+              })
+
+              res.json(serv)
+
+            }).catch(err => res.json({server_errro:"Error consultar services"}))
+
+
+          }).catch(err => res.json({server_errro:"Error consultar usuarios services"}))
         })
 
     serviceRouter.route('/view/:sid')
         .post(verifyToken,(sol, res)=>{
           db.collection('Services').doc(sol.params.sid).get()
-              .then((service)=>{
+              .then(async (service)=>{
                 if (service.exists) {
-                  res.json( {serviceId:service.id, ...service.data()}  )
+                   let finalService = {
+                     serviceId:service.id, 
+                     ...service.data()
+                    }
+                     let infoUser =  await db.collection('Users').doc(finalService.UserId).get()
+                     finalService.UserId = { ...infoUser.data()}
+
+                  res.status(201).json({Service: finalService})
                 } else {
-                  res.json( {serviceExists: false} )
+                  res.status(400).json( {serviceExists: false} )
                 }
 
               })
@@ -73,7 +95,6 @@ module.exports = (app, fireAdmin) => {
         db.collection('Services')
         .get()
         .then( services => {
-          
           
           let busqueda = sol.body.busqueda
           let results = []
