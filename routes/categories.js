@@ -54,14 +54,22 @@ module.exports = (app, fireAdmin) => {
   
   categoryRouter.route('/view/:sid/services')
     .post(verifyToken, (sol, res) => {
-      db.collection('Services')
-      .where('categoryId', '==', sol.params.sid)
-      .get()
-      .then( services => {
-        services =  services.docs.map(service => {
-          return {serviceId:service.id, ...service.data()}
-        })
-        res.json({services})
+      let allUsers = {};
+      db.collection('Users').get()
+      .then( u => { 
+        u.forEach(user => allUsers[user.id] = user.data())
+        db.collection('Services')
+          .where('categoryId', '==', sol.params.sid)
+          .get()
+          .then( services => {
+            services =  services.docs.map(service => {
+              service = {serviceId:service.id, ...service.data()}
+              service.UserId = allUsers[service.UserId]
+              return service
+            })
+            res.json({services})
+          })
+
       })
     })
   categoryRouter.route('/update/:sid')
